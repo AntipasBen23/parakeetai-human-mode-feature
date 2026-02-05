@@ -1,80 +1,141 @@
-// tailwind.config.ts
+// src/lib/utils.ts
 
-import type { Config } from "tailwindcss";
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
-const config: Config = {
-  darkMode: ["class"],
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        // ParakeetAI Brand Colors (green parrot theme)
-        primary: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e', // Main ParakeetAI green
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
-          950: '#052e16',
-        },
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'bounce-slow': 'bounce 2s infinite',
-      },
-    },
+// Tailwind class merger (for shadcn) - default export
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Simulate API delay for realistic feel
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Simulate progress updates
+export async function simulateProgress(
+  callback: (progress: number, message: string) => void,
+  steps: { progress: number; message: string; duration: number }[]
+) {
+  for (const step of steps) {
+    callback(step.progress, step.message);
+    await delay(step.duration);
+  }
+}
+
+// Format skill level for display
+export function formatSkillLevel(level: string): string {
+  return level.charAt(0).toUpperCase() + level.slice(1);
+}
+
+// Get random filler words for voice analysis
+export function getRandomFillerWords(): string[] {
+  const fillerWordOptions = [
+    ["like", "you know", "um"],
+    ["basically", "actually", "kind of"],
+    ["sort of", "I mean", "you see"],
+    ["well", "so", "right"],
+    ["honestly", "literally", "pretty much"]
+  ];
+  
+  return fillerWordOptions[Math.floor(Math.random() * fillerWordOptions.length)];
+}
+
+// Get random common phrases
+export function getRandomCommonPhrases(): string[] {
+  const phraseOptions = [
+    ["I think", "in my experience", "from what I've seen"],
+    ["I believe", "it seems like", "I'd say"],
+    ["personally", "to be honest", "the way I see it"],
+    ["generally", "typically", "usually"],
+    ["I tend to", "I usually", "I prefer to"]
+  ];
+  
+  return phraseOptions[Math.floor(Math.random() * phraseOptions.length)];
+}
+
+// Generate mock voice analysis results
+export function generateMockVoiceAnalysis() {
+  const vocabularyLevels = [
+    "Conversational (6.5/10)",
+    "Professional (7.2/10)", 
+    "Technical (8.1/10)",
+    "Academic (7.8/10)"
+  ];
+  
+  const sentenceLengths = [
+    "Short (8-12 words avg)",
+    "Medium (12-16 words avg)",
+    "Long (16-22 words avg)"
+  ];
+  
+  const tones = [
+    "Casual and friendly",
+    "Professional yet approachable",
+    "Formal and measured",
+    "Enthusiastic and energetic"
+  ];
+  
+  const speakingPaces = [
+    "125 words/minute (Relaxed)",
+    "145 words/minute (Normal)",
+    "165 words/minute (Energetic)",
+    "135 words/minute (Thoughtful)"
+  ];
+  
+  return {
+    vocabularyLevel: vocabularyLevels[Math.floor(Math.random() * vocabularyLevels.length)],
+    sentenceLength: sentenceLengths[Math.floor(Math.random() * sentenceLengths.length)],
+    tone: tones[Math.floor(Math.random() * tones.length)],
+    fillerWords: getRandomFillerWords(),
+    commonPhrases: getRandomCommonPhrases(),
+    speakingPace: speakingPaces[Math.floor(Math.random() * speakingPaces.length)]
+  };
+}
+
+// LocalStorage helpers
+export const storage = {
+  get: (key: string) => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : null;
+    } catch {
+      return null;
+    }
   },
-  plugins: [require("tailwindcss-animate")],
+  
+  set: (key: string, value: any) => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  },
+  
+  remove: (key: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Error removing from localStorage:', error);
+    }
+  },
+  
+  clear: () => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.clear();
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+  }
 };
 
-export default config;
+// Storage keys
+export const STORAGE_KEYS = {
+  USER_PROFILE: 'humanmode_user_profile',
+  VOICE_PATTERNS: 'humanmode_voice_patterns',
+  SKILLS: 'humanmode_skills',
+  INTERVIEW_CONTEXT: 'humanmode_interview_context'
+};
